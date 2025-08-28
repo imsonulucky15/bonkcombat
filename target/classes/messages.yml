@@ -1,0 +1,18 @@
+# default prefix is '&c&lCOMBAT &8» and you can change it in the config.yml'
+tagged: "{prefix} &7You are now in &ccombat &7with &c%username%&7. Do not quit!"
+untagged: "{prefix} &7You are &anot &7in combat anymore and can quit safely."
+combat_log: "{prefix} &c%username% &7has disconnected mid &ccombat &7and died."
+safezone_block: "{prefix} &7You cannot enter this region while in &ccombat&7."
+elytra_disabled: "{prefix} &7You cannot use an elytra while in &ccombat!"
+pearl_cooldown: "{prefix} &7You must wait &c<sec>s&7 to throw another pearl!"
+pearl_blocked: "{prefix} &7You cannot throw pearls while in &ccombat&7!"
+reload: "{prefix} &aBonkCombat reloaded!"
+blocked_command: "{prefix} &7You cannot use that command during &ccombat&7."
+reward_zero: "{prefix} &7You got nothing from killing &c{victim} &7because they had no money."
+reward_received: "{prefix} &7You earned &6${amount} &7from killing &c{victim} &7in a PvP region!"
+reward_lost: "{prefix} &cYou lost &6${amount} &cto &e{killer} &cbecause you died in a PvP region."
+windcharge-blocked: "{prefix} &7You cannot use &cwind charges&7 in this region!"
+potionstack-success: "{prefix} &aYour splash potions have been stacked!"
+potionstack-max-reached: '&cSome potions were not stacked because the max stack size of {max} was reached.'
+blocked-potion-effect: '{prefix} &7You cannot use &c{effect} in this region!'
+trident-blocked: '{prefix} &7You cannot use &cTridents &7in this region!'

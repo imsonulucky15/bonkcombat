@@ -1,0 +1,32 @@
+name: BonkCombat
+version: 1.0
+main: me.imsonulucky.bonkcombat.BonkCombat
+api-version: 1.21
+author: imsonulucky
+
+commands:
+  bc:
+    description: Main BonkCombat command for reload and testing
+    usage: /<command> <subcommand>
+    permission: bonkcombat.base
+  potionstack:
+    description: Stack potions in your inventory
+    usage: /<command>
+    permission: bonkcombat.potionstack
+
+permissions:
+  bonkcombat.reload:
+    description: Allows reloading the BonkCombat plugin
+    default: op
+  bonkcombat.bypass:
+    description: Allows a player to bypass combat command restrictions
+    default: false
+  bonkcombat.testtag:
+    description: Allows use of /bc tag for testing
+    default: op
+  bonkcombat.base:
+    description: Base permission for /bc
+    default: op
+  bonkcombat.potionstack:
+    description: Allows use of /potionstack and aliases
+    default: op

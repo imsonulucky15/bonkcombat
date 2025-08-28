@@ -1,0 +1,101 @@
+combat-timer: 15 # in seconds / how long a player is in combat for
+
+disable_elytra:
+  enabled: disabled # "enabled" or "disabled" (controls whether Elytra is blocked during combat)
+  allowed_regions: true # If true, Elytra is only allowed in listed regions; if false, it's disabled everywhere during combat
+  regions:
+    - spawn
+    - macepvp_arena
+
+auto_delete_empty_potion_bottles: true # automatically delete potion bottles when its empty to avoid clutter
+
+combat-log-punishment: kill # kill, drop_inventory (will drop the inventory, but he will still be alive with his stuff), recommend KILL
+
+prefix: '&c&lCOMBAT &8»' # Hex Codes, MINIMessage, and color codes are supported
+
+actionbar-message: '&#DAFF00Combat &8- &#FF0000<sec>s'
+
+reward:
+  enabled: false # enable or disable the whole reward system
+  region-money-reward:
+    enabled: false
+    debug: false # don't set to true unless asked to
+    regions:
+      - test
+    percentage: 20.0 # percentage of the money that will be stolen from the killed player
+
+pearl-settings:
+  enabled: true
+  cooldown: 5
+  block-throwing: false # whether the player can throw ender pearls completely while in combat or not
+  whitelist-regions:
+    - cpvp
+    - cpvpsafe
+    - cpvp1
+    - cpvp2
+    - cpvp3
+    - cpvp4
+    - cpvp5
+  whitelist-worlds:
+    - world
+    - world_nether:
+  blocked-regions:
+    - spawn
+    - moshpit
+    - spvp
+  # This is the list of regions where wind charges are blocked, if the player tries to use a wind charge in these regions, it will be blocked
+
+potionstack:
+  enabled: true # enable or disable the potion stacking feature
+  max-stacked-potion-items: 16 # maximum number of stacked potions, you can stack in your inventory
+
+blocked-potion-effects:
+  enabled: false        # if set to true Potion effects mentioned below are blocked everywhere.
+  use-regions: true     # if the setting above is set to false & this setting is set to true effects are only blocked in the regions mentioned below
+  regions:
+    - cpvp
+    - spvp
+  effects:
+    - SPEED
+    - INVISIBILITY
+
+blocked-tridents:
+  enabled: false        # if set to true tridents are blocked everywhere.
+  use-regions: true     # if the setting above is false & this is true, tridents are only blocked in the regions listed below
+  regions:
+    - cpvp
+    - spvp
+
+mace-damage-limiter:
+  enabled: true
+  max-damage: 25.0
+  # This is the maximum damage a mace can deal, if it exceeds this value, it will be set to this value
+
+command-control:
+  blacklist:
+    enabled: true
+    commands:
+      - '*' # * is a wildcard for every command & whitelist commands override the blacklist
+  whitelist:
+    enabled: true
+    commands:
+      - /msg
+      - /pm
+      - /team chat
+      - /r
+      - /tell
+
+safezone-wall-warning:
+  enabled: true
+  debug: false
+  teleport-cooldown: 1000 # in milliseconds
+  teleport-offset: 5 # in blocks
+  proximity-radius: 15 # dont recommend going under 10
+  marker-height: 15
+  marker-block: RED_STAINED_GLASS
+  punishment:
+    effect-duration: 5
+    title:
+      main: "&cYou can't enter this region during combat"
+      subtitle: ""
+
