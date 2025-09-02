@@ -1,5 +1,6 @@
 package me.imsonulucky.bonkcombat.utils;
 
+import me.imsonulucky.bonkcombat.util.CombatEnd;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -26,7 +27,12 @@ public class CombatManager {
     }
 
     public void untag(Player player) {
-        combatTimers.remove(player.getUniqueId());
+        if (combatTimers.remove(player.getUniqueId()) != null) {
+            Bukkit.getScheduler().runTask(
+                    Bukkit.getPluginManager().getPlugin("BonkCombat"),
+                    () -> Bukkit.getPluginManager().callEvent(new CombatEnd(player))
+            );
+        }
     }
 
     public boolean isInCombat(Player player) {
@@ -42,9 +48,30 @@ public class CombatManager {
         return Math.max(0, timeLeft);
     }
 
+    public Set<UUID> getPlayersInCombat() {
+        return Collections.unmodifiableSet(combatTimers.keySet());
+    }
+
     private void cleanupExpiredCombat() {
         long now = System.currentTimeMillis();
-        combatTimers.entrySet().removeIf(entry -> now - entry.getValue() > combatDurationMillis);
+
+        Iterator<Map.Entry<UUID, Long>> iterator = combatTimers.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, Long> entry = iterator.next();
+            UUID uuid = entry.getKey();
+            long taggedAt = entry.getValue();
+
+            if (now - taggedAt > combatDurationMillis) {
+                iterator.remove();
+                Player player = Bukkit.getPlayer(uuid);
+                if (player != null && player.isOnline()) {
+                    Bukkit.getScheduler().runTask(
+                            Bukkit.getPluginManager().getPlugin("BonkCombat"),
+                            () -> Bukkit.getPluginManager().callEvent(new CombatEnd(player))
+                    );
+                }
+            }
+        }
     }
 
     public void setLastPearlUse(Player player) {

@@ -6,6 +6,9 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Set;
+import java.util.UUID;
+
 public class ActionBarUtil {
 
     private static boolean started = false;
@@ -26,20 +29,21 @@ public class ActionBarUtil {
         long updateTicks = plugin.getConfig().getLong("actionbar-update-ticks", 2L);
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (!player.isOnline()) continue;
+            Set<UUID> combatPlayers = plugin.getCombatManager().getPlayersInCombat();
 
-                if (plugin.getCombatManager().isInCombat(player)) {
-                    long msLeft = plugin.getCombatManager().getCombatMillisLeft(player);
-                    double seconds = msLeft / 1000.0;
+            for (UUID uuid : combatPlayers) {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player == null || !player.isOnline()) continue;
 
-                    if (seconds <= 0) continue;
+                long msLeft = plugin.getCombatManager().getCombatMillisLeft(player);
+                double seconds = msLeft / 1000.0;
 
-                    String format = plugin.getConfig().getString("actionbar-message", "&cCombat - <sec>s");
-                    String msg = format.replace("<sec>", String.format("%.1f", seconds));
+                if (seconds <= 0) continue;
 
-                    send(player, msg);
-                }
+                String format = plugin.getConfig().getString("actionbar-message", "&cCombat - <sec>s");
+                String msg = format.replace("<sec>", String.format("%.1f", seconds));
+
+                send(player, msg);
             }
         }, 0L, updateTicks);
     }

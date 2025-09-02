@@ -10,6 +10,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -78,10 +79,8 @@ public class SafeZoneWarningListener implements Listener {
             @Override
             public void run() {
                 if (!enabled) return;
-                Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-                if (players.isEmpty()) return;
 
-                for (Player player : players) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
                     UUID uuid = player.getUniqueId();
                     PlayerSafeZoneData data = playerData.computeIfAbsent(uuid, id -> new PlayerSafeZoneData());
 
@@ -91,41 +90,66 @@ public class SafeZoneWarningListener implements Listener {
                         continue;
                     }
 
-                    Block currentBlock = player.getLocation().getBlock();
-                    if (data.lastBlockLoc != null
-                            && currentBlock.getX() == data.lastBlockLoc.getBlockX()
-                            && currentBlock.getY() == data.lastBlockLoc.getBlockY()
-                            && currentBlock.getZ() == data.lastBlockLoc.getBlockZ()
-                            && currentBlock.getWorld().equals(data.lastBlockLoc.getWorld())) {
-                        continue;
-                    }
-                    data.lastBlockLoc = currentBlock.getLocation();
-
+                    Location loc = player.getLocation();
                     long now = System.currentTimeMillis();
-                    if (now - data.lastEdgeCheck < EDGE_CHECK_INTERVAL_MS) continue;
-                    data.lastEdgeCheck = now;
-
-                    Set<BlockKey> newEdges = findRegionEdgeKeys(player, proximityRadius);
-                    if (!newEdges.equals(data.lastEdgeKeys)) {
-                        updateMarkerBlocks(player, data, newEdges);
-                    }
-
-                    boolean canDamage = canBeDamagedCached(player, player.getLocation());
-                    if (canDamage) {
-                        data.lastLegalLoc = player.getLocation().clone();
-                    } else {
-                        trackWallTouches(player, data);
-
-                        if (now - data.lastTeleport >= teleportCooldown && data.lastLegalLoc != null) {
+                    if (!canBeDamagedCached(player, loc)) {
+                        if (data.lastLegalLoc != null && now - data.lastTeleport >= teleportCooldown) {
                             Location safeLoc = getOffsetLocation(player, data.lastLegalLoc);
                             data.lastTeleport = now;
-                            player.teleport(safeLoc);
-                            debug("Teleported " + player.getName() + " to " + safeLoc);
+                            safeTeleport(player, safeLoc);
+                            debug("Proximity check teleported " + player.getName() + " to " + safeLoc);
                         }
                     }
                 }
             }
         }.runTaskTimer(plugin, 0, TASK_INTERVAL);
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (!enabled) return;
+
+        Player player = event.getPlayer();
+        if (!combatManager.isInCombat(player)) return;
+
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (to == null) return;
+
+        if (from.getBlockX() == to.getBlockX() &&
+                from.getBlockY() == to.getBlockY() &&
+                from.getBlockZ() == to.getBlockZ()) {
+            return;
+        }
+
+        UUID uuid = player.getUniqueId();
+        PlayerSafeZoneData data = playerData.computeIfAbsent(uuid, id -> new PlayerSafeZoneData());
+        data.lastBlockLoc = to;
+
+        long now = System.currentTimeMillis();
+        boolean canDamage = canBeDamagedCached(player, to);
+
+        if (canDamage) {
+            data.lastLegalLoc = to.clone();
+            return;
+        }
+
+        trackWallTouches(player, data);
+
+        if (now - data.lastTeleport >= teleportCooldown && data.lastLegalLoc != null) {
+            Location safeLoc = getOffsetLocation(player, data.lastLegalLoc);
+            data.lastTeleport = now;
+            safeTeleport(player, safeLoc);
+            debug("Teleported " + player.getName() + " to " + safeLoc);
+        }
+
+        if (now - data.lastEdgeCheck >= EDGE_CHECK_INTERVAL_MS) {
+            data.lastEdgeCheck = now;
+            Set<BlockKey> newEdges = findRegionEdgeKeys(player, proximityRadius);
+            if (!newEdges.equals(data.lastEdgeKeys)) {
+                updateMarkerBlocks(player, data, newEdges);
+            }
+        }
     }
 
     private void updateMarkerBlocks(Player player, PlayerSafeZoneData data, Set<BlockKey> newEdges) {
@@ -230,13 +254,30 @@ public class SafeZoneWarningListener implements Listener {
     }
 
     private Location getOffsetLocation(Player player, Location lastLegal) {
-        Vector awayFromSafezone = lastLegal.toVector()
-                .subtract(player.getLocation().toVector())
-                .normalize();
+        Vector diff = lastLegal.toVector().subtract(player.getLocation().toVector());
 
+        if (diff.lengthSquared() == 0) {
+            // If same location, push them up a block
+            return lastLegal.clone().add(0, 1, 0);
+        }
+
+        Vector awayFromSafezone = diff.normalize();
         Location offsetLoc = lastLegal.clone().add(awayFromSafezone.multiply(teleportOffset));
         offsetLoc.setY(lastLegal.getY());
+
         return offsetLoc;
+    }
+
+    private void safeTeleport(Player player, Location loc) {
+        if (loc == null || loc.getWorld() == null) return;
+
+        if (Double.isFinite(loc.getX()) &&
+                Double.isFinite(loc.getY()) &&
+                Double.isFinite(loc.getZ())) {
+            player.teleport(loc);
+        } else {
+            debug("Skipped teleport for " + player.getName() + " (invalid location: " + loc + ")");
+        }
     }
 
     private Set<BlockKey> findRegionEdgeKeys(Player player, int radius) {

@@ -25,6 +25,7 @@ me\imsonulucky\bonkcombat\potions\PotionStacker.class
 me\imsonulucky\bonkcombat\listeners\KillUntagListener.class
 me\imsonulucky\bonkcombat\commands\BonkCombatCommand.class
 me\imsonulucky\bonkcombat\listeners\PotionListener.class
+me\imsonulucky\bonkcombat\util\CombatEnd.class
 me\imsonulucky\bonkcombat\listeners\RegionRewardListener.class
 me\imsonulucky\bonkcombat\listeners\CombatLogListener.class
 me\imsonulucky\bonkcombat\utils\ConfigManager.class
