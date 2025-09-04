@@ -51,7 +51,7 @@ public class WindChargeListener implements Listener {
 
         if (isBlocked) {
             event.setCancelled(true);
-            player.sendMessage(ColorUtil.colorize(plugin.getMessages().getString("windcharge-blocked")));
+            player.sendMessage(ColorUtil.parse(plugin.getMessages().getString("windcharge-blocked")));
         }
     }
 }

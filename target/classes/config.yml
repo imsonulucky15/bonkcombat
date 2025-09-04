@@ -88,6 +88,7 @@ command-control:
 safezone-wall-warning:
   enabled: true
   debug: false
+  refresh-interval: 5 # ticks, how often the wall should refresh for combat player, recommended to leave at it is
   teleport-cooldown: 1000 # in milliseconds
   teleport-offset: 5 # in blocks
   proximity-radius: 15 # dont recommend going under 10
@@ -96,6 +97,6 @@ safezone-wall-warning:
   punishment:
     effect-duration: 5
     title:
-      main: "&cYou can't enter this region during combat"
-      subtitle: ""
+      main: ""
+      subtitle: "&#FF0000You can't enter this region during combat"
 

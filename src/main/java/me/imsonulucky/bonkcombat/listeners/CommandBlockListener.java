@@ -38,7 +38,7 @@ public class CommandBlockListener implements Listener {
             if (blacklist.contains("*") || blacklist.contains(command)) {
                 e.setCancelled(true);
                 e.getPlayer().sendMessage("");
-                e.getPlayer().sendMessage(ColorUtil.colorize(ConfigManager.getMessage("blocked_command")));
+                e.getPlayer().sendMessage(ColorUtil.parse(ConfigManager.getMessage("blocked_command")));
             }
         }
     }

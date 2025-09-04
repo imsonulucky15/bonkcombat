@@ -18,7 +18,7 @@ public class ActionBarUtil {
         if (p == null || !p.isOnline()) return;
         if (msg == null || msg.isEmpty()) return;
 
-        Component component = legacySerializer.deserialize(ColorUtil.colorize(msg));
+        Component component = legacySerializer.deserialize(ColorUtil.parseLegacy(msg));
         p.sendActionBar(component);
     }
 

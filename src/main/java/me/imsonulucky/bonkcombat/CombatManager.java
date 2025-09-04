@@ -27,12 +27,7 @@ public class CombatManager {
     }
 
     public void untag(Player player) {
-        if (combatTimers.remove(player.getUniqueId()) != null) {
-            Bukkit.getScheduler().runTask(
-                    Bukkit.getPluginManager().getPlugin("BonkCombat"),
-                    () -> Bukkit.getPluginManager().callEvent(new CombatEnd(player))
-            );
-        }
+        endCombat(player);
     }
 
     public boolean isInCombat(Player player) {
@@ -65,13 +60,19 @@ public class CombatManager {
                 iterator.remove();
                 Player player = Bukkit.getPlayer(uuid);
                 if (player != null && player.isOnline()) {
-                    Bukkit.getScheduler().runTask(
-                            Bukkit.getPluginManager().getPlugin("BonkCombat"),
-                            () -> Bukkit.getPluginManager().callEvent(new CombatEnd(player))
-                    );
+                    endCombat(player);
                 }
             }
         }
+    }
+
+    private void endCombat(Player player) {
+        combatTimers.remove(player.getUniqueId());
+
+        Bukkit.getScheduler().runTask(
+                Bukkit.getPluginManager().getPlugin("BonkCombat"),
+                () -> Bukkit.getPluginManager().callEvent(new CombatEnd(player))
+        );
     }
 
     public void setLastPearlUse(Player player) {

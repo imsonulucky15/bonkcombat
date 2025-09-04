@@ -28,17 +28,17 @@ public class PotionStackCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ColorUtil.colorize("&cOnly players can use this command."));
+            sender.sendMessage(ColorUtil.parse("&cOnly players can use this command."));
             return true;
         }
 
         if (!plugin.getConfig().getBoolean("potionstack.enabled", true)) {
-            player.sendMessage(ColorUtil.colorize("&cPotion stacking is disabled in the config."));
+            player.sendMessage(ColorUtil.parse("&cPotion stacking is disabled in the config."));
             return true;
         }
 
         if (!player.hasPermission("bonkcombat.potionstack")) {
-            player.sendMessage(ColorUtil.colorize("&cYou do not have permission to use this command."));
+            player.sendMessage(ColorUtil.parse("&cYou do not have permission to use this command."));
             return true;
         }
 
