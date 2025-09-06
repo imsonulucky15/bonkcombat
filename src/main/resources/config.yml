@@ -92,11 +92,10 @@ safezone-wall-warning:
   teleport-cooldown: 1000 # in milliseconds
   teleport-offset: 5 # in blocks
   proximity-radius: 15 # dont recommend going under 10
-  marker-height: 15
+  marker-height: 5
   marker-block: RED_STAINED_GLASS
   punishment:
     effect-duration: 5
     title:
       main: ""
       subtitle: "&#FF0000You can't enter this region during combat"
-

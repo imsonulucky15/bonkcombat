@@ -1,4 +1,4 @@
-package me.imsonulucky.bonkcombat.utils;
+package me.imsonulucky.bonkcombat.util;
 
 import me.imsonulucky.bonkcombat.BonkCombat;
 import org.bukkit.ChatColor;
@@ -56,13 +56,38 @@ public class ConfigManager {
 
     public static String getMessage(String path) {
         if (instance == null) return ChatColor.RED + "ConfigManager not initialized";
+
         String msg = instance.messages.getString(path, "");
+
+        if (msg == null || msg.isEmpty()) {
+            if (path.contains("_")) {
+                msg = instance.messages.getString(path.replace("_", "-"), "");
+            } else if (path.contains("-")) {
+                msg = instance.messages.getString(path.replace("-", "_"), "");
+            }
+        }
+
+        if (msg == null) msg = "";
+
         return colorize(msg.replace("{prefix}", instance.config.getString("prefix", "")));
     }
 
     public static String getMessage(String path, Map<String, String> placeholders) {
         if (instance == null) return ChatColor.RED + "ConfigManager not initialized";
-        String raw = instance.messages.getString(path, "").replace("{prefix}", instance.config.getString("prefix", ""));
+
+        String raw = instance.messages.getString(path, "");
+
+        if (raw == null || raw.isEmpty()) {
+            if (path.contains("_")) {
+                raw = instance.messages.getString(path.replace("_", "-"), "");
+            } else if (path.contains("-")) {
+                raw = instance.messages.getString(path.replace("-", "_"), "");
+            }
+        }
+
+        if (raw == null) raw = "";
+
+        raw = raw.replace("{prefix}", instance.config.getString("prefix", ""));
         for (Map.Entry<String, String> entry : placeholders.entrySet()) {
             raw = raw.replace(entry.getKey(), entry.getValue());
         }

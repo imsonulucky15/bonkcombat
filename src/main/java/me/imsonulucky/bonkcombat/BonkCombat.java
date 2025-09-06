@@ -5,8 +5,8 @@ import me.imsonulucky.bonkcombat.commands.PotionStackCommand;
 import me.imsonulucky.bonkcombat.integrations.VaultHook;
 import me.imsonulucky.bonkcombat.listeners.*;
 import me.imsonulucky.bonkcombat.util.ActionBarUtil;
-import me.imsonulucky.bonkcombat.utils.CombatManager;
-import me.imsonulucky.bonkcombat.utils.ConfigManager;
+import me.imsonulucky.bonkcombat.util.CombatManager;
+import me.imsonulucky.bonkcombat.util.ConfigManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

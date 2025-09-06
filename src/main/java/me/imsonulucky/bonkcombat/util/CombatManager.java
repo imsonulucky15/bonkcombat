@@ -1,6 +1,5 @@
-package me.imsonulucky.bonkcombat.utils;
+package me.imsonulucky.bonkcombat.util;
 
-import me.imsonulucky.bonkcombat.util.CombatEnd;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

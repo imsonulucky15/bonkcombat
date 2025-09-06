@@ -6,6 +6,7 @@ me\imsonulucky\bonkcombat\listeners\SafeZoneWarningListener$BlockKey.class
 me\imsonulucky\bonkcombat\commands\PotionStackCommand.class
 me\imsonulucky\bonkcombat\BonkCombat.class
 me\imsonulucky\bonkcombat\potions\PotionStacker$StackResult.class
+me\imsonulucky\bonkcombat\integrations\WorldGuardHook$CachedRegion.class
 me\imsonulucky\bonkcombat\potions\PotionStacker$PotionKey.class
 me\imsonulucky\bonkcombat\listeners\SafeZoneWarningListener$1.class
 me\imsonulucky\bonkcombat\listeners\SafeZoneWarningListener$Long2DamageCache.class
@@ -13,8 +14,10 @@ me\imsonulucky\bonkcombat\listeners\ElytraListener.class
 me\imsonulucky\bonkcombat\util\ColorUtil.class
 me\imsonulucky\bonkcombat\listeners\SafeZoneWarningListener$PlayerSafeZoneData.class
 me\imsonulucky\bonkcombat\listeners\SafeZoneWarningListener$Long2DamageCache$Entry.class
+me\imsonulucky\bonkcombat\util\CombatManager.class
 me\imsonulucky\bonkcombat\listeners\PotionListener$1.class
 me\imsonulucky\bonkcombat\listeners\DamageTagListener.class
+me\imsonulucky\bonkcombat\util\ConfigManager.class
 me\imsonulucky\bonkcombat\listeners\MaceDamageLimiterListener.class
 me\imsonulucky\bonkcombat\commands\PotionStackCommand$1.class
 me\imsonulucky\bonkcombat\integrations\VaultHook.class
@@ -22,13 +25,13 @@ me\imsonulucky\bonkcombat\listeners\SafeZoneWarningListener.class
 me\imsonulucky\bonkcombat\integrations\WorldGuardHook.class
 me\imsonulucky\bonkcombat\listeners\TridentListener.class
 me\imsonulucky\bonkcombat\potions\PotionStacker.class
+me\imsonulucky\bonkcombat\integrations\WorldGuardHook$CachedWorld.class
 me\imsonulucky\bonkcombat\listeners\KillUntagListener.class
 me\imsonulucky\bonkcombat\commands\BonkCombatCommand.class
 me\imsonulucky\bonkcombat\listeners\PotionListener.class
 me\imsonulucky\bonkcombat\util\CombatEnd.class
 me\imsonulucky\bonkcombat\listeners\RegionRewardListener.class
 me\imsonulucky\bonkcombat\listeners\CombatLogListener.class
-me\imsonulucky\bonkcombat\utils\ConfigManager.class
 me\imsonulucky\bonkcombat\util\ActionBarUtil.class
 me\imsonulucky\bonkcombat\listeners\PotionBlockerListener.class
-me\imsonulucky\bonkcombat\utils\CombatManager.class
+me\imsonulucky\bonkcombat\listeners\SafeZoneWarningListener$2.class

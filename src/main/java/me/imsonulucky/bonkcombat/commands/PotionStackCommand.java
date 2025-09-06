@@ -3,7 +3,7 @@ package me.imsonulucky.bonkcombat.commands;
 import me.imsonulucky.bonkcombat.BonkCombat;
 import me.imsonulucky.bonkcombat.potions.PotionStacker;
 import me.imsonulucky.bonkcombat.util.ColorUtil;
-import me.imsonulucky.bonkcombat.utils.ConfigManager;
+import me.imsonulucky.bonkcombat.util.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

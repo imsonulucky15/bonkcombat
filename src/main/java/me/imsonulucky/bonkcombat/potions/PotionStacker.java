@@ -1,6 +1,6 @@
 package me.imsonulucky.bonkcombat.potions;
 
-import me.imsonulucky.bonkcombat.utils.ConfigManager;
+import me.imsonulucky.bonkcombat.util.ConfigManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

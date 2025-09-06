@@ -28,7 +28,7 @@ public class ActionBarUtil {
 
         long updateTicks = plugin.getConfig().getLong("actionbar-update-ticks", 2L);
 
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             Set<UUID> combatPlayers = plugin.getCombatManager().getPlayersInCombat();
 
             for (UUID uuid : combatPlayers) {

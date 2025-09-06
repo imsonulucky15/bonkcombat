@@ -3,8 +3,8 @@ package me.imsonulucky.bonkcombat.listeners;
 import me.imsonulucky.bonkcombat.BonkCombat;
 import me.imsonulucky.bonkcombat.integrations.WorldGuardHook;
 import me.imsonulucky.bonkcombat.util.CombatEnd;
-import me.imsonulucky.bonkcombat.utils.CombatManager;
-import me.imsonulucky.bonkcombat.utils.ConfigManager;
+import me.imsonulucky.bonkcombat.util.CombatManager;
+import me.imsonulucky.bonkcombat.util.ConfigManager;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -50,6 +50,9 @@ public class SafeZoneWarningListener implements Listener {
 
     private final Location tempLoc = new Location(null, 0, 0, 0);
 
+    private boolean checkOnlyInSpawn;
+    private String spawnWorldName;
+
     public SafeZoneWarningListener(BonkCombat plugin, CombatManager manager) {
         this.plugin = plugin;
         this.combatManager = manager;
@@ -71,20 +74,36 @@ public class SafeZoneWarningListener implements Listener {
         this.markerMaterial = Material.matchMaterial(matName);
         if (this.markerMaterial == null) this.markerMaterial = Material.RED_STAINED_GLASS;
         this.markerBlockData = markerMaterial.createBlockData();
+
+        this.checkOnlyInSpawn = config.getBoolean("safezone-wall-warning.check-only-in-spawn", false);
+        this.spawnWorldName = config.getString("safezone-wall-warning.spawn-world", "world");
     }
 
     private void startProximityCheck() {
         new BukkitRunnable() {
+            int playerIndex = 0;
+
             @Override
             public void run() {
                 if (!enabled) return;
 
-                for (UUID uuid : combatManager.getPlayersInCombat()) {
+                List<UUID> combatPlayers = new ArrayList<>(combatManager.getPlayersInCombat());
+                if (combatPlayers.isEmpty()) return;
+
+                int batchSize = Math.max(1, combatPlayers.size() / 5);
+                int endIndex = Math.min(playerIndex + batchSize, combatPlayers.size());
+
+                for (int i = playerIndex; i < endIndex; i++) {
+                    UUID uuid = combatPlayers.get(i);
                     Player player = Bukkit.getPlayer(uuid);
                     if (player == null || !player.isOnline()) continue;
 
-                    PlayerSafeZoneData data = playerData.computeIfAbsent(uuid, id -> new PlayerSafeZoneData());
+                    if (checkOnlyInSpawn) {
+                        World spawnWorld = Bukkit.getWorld(spawnWorldName);
+                        if (spawnWorld == null || !player.getWorld().equals(spawnWorld)) continue;
+                    }
 
+                    PlayerSafeZoneData data = playerData.computeIfAbsent(uuid, id -> new PlayerSafeZoneData());
                     Location loc = player.getLocation();
                     long now = System.currentTimeMillis();
 
@@ -102,8 +121,40 @@ public class SafeZoneWarningListener implements Listener {
                     Set<BlockKey> newEdges = findRegionEdgeKeys(player, proximityRadius);
                     updateMarkerBlocks(player, data, newEdges);
                 }
+
+                playerIndex = endIndex >= combatPlayers.size() ? 0 : endIndex;
             }
         }.runTaskTimer(plugin, 0, refreshInterval);
+    }
+
+    private void fadeOutFakeBlocks(Player player, PlayerSafeZoneData data) {
+        if (data.sentBlockKeys.isEmpty()) return;
+
+        List<BlockKey> blocks = new ArrayList<>(data.sentBlockKeys);
+        new BukkitRunnable() {
+            int index = 0;
+            final World world = player.getWorld();
+            final Location loc = tempLoc;
+
+            @Override
+            public void run() {
+                if (index >= blocks.size()) {
+                    data.sentBlockKeys.clear();
+                    cancel();
+                    return;
+                }
+
+                BlockKey key = blocks.get(index++);
+                for (int dy = 0; dy < markerHeight; dy++) {
+                    loc.setWorld(world);
+                    loc.setX(key.x);
+                    loc.setY(key.y + dy);
+                    loc.setZ(key.z);
+                    Block realBlock = loc.getBlock();
+                    player.sendBlockChange(loc, realBlock.getBlockData());
+                }
+            }
+        }.runTaskTimer(plugin, FADE_DELAY, 1);
     }
 
     private void updateMarkerBlocks(Player player, PlayerSafeZoneData data, Set<BlockKey> newEdges) {
@@ -139,39 +190,8 @@ public class SafeZoneWarningListener implements Listener {
         data.sentBlockKeys.addAll(newEdges);
     }
 
-    private void fadeOutFakeBlocks(Player player, PlayerSafeZoneData data) {
-        if (data.sentBlockKeys.isEmpty()) return;
-
-        Runnable fade = () -> {
-            final World world = player.getWorld();
-            final Location loc = tempLoc;
-            loc.setWorld(world);
-
-            int baseY = player.getLocation().getBlockY();
-
-            for (BlockKey key : data.sentBlockKeys) {
-                for (int dy = 0; dy < markerHeight; dy++) {
-                    loc.setX(key.x);
-                    loc.setY(baseY + dy);
-                    loc.setZ(key.z);
-                    Block realBlock = loc.getBlock();
-                    player.sendBlockChange(loc, realBlock.getBlockData());
-                }
-            }
-        };
-
-        if (FADE_DELAY > 0) {
-            Bukkit.getScheduler().runTaskLater(plugin, fade, FADE_DELAY);
-        } else {
-            fade.run();
-        }
-
-        data.sentBlockKeys.clear();
-    }
-
     private void applyPunishment(Player player) {
         int duration = plugin.getConfig().getInt("safezone-wall-warning.punishment.effect-duration", 60);
-
         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, duration, 1));
         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 0));
 
@@ -191,24 +211,17 @@ public class SafeZoneWarningListener implements Listener {
 
     private Location getOffsetLocation(Player player, Location lastLegal) {
         Vector diff = lastLegal.toVector().subtract(player.getLocation().toVector());
-
-        if (diff.lengthSquared() == 0) {
-            return lastLegal.clone().add(0, 1, 0);
-        }
+        if (diff.lengthSquared() == 0) return lastLegal.clone().add(0, 1, 0);
 
         Vector awayFromSafezone = diff.normalize();
         Location offsetLoc = lastLegal.clone().add(awayFromSafezone.multiply(teleportOffset));
         offsetLoc.setY(lastLegal.getY());
-
         return offsetLoc;
     }
 
     private void safeTeleport(Player player, Location loc) {
         if (loc == null || loc.getWorld() == null) return;
-
-        if (Double.isFinite(loc.getX()) &&
-                Double.isFinite(loc.getY()) &&
-                Double.isFinite(loc.getZ())) {
+        if (Double.isFinite(loc.getX()) && Double.isFinite(loc.getY()) && Double.isFinite(loc.getZ())) {
             player.teleport(loc);
         } else {
             debug("Skipped teleport for " + player.getName() + " (invalid location: " + loc + ")");
@@ -223,7 +236,6 @@ public class SafeZoneWarningListener implements Listener {
         final int baseX = base.getBlockX();
         final int baseY = base.getBlockY();
         final int baseZ = base.getBlockZ();
-
         tempLoc.setWorld(world);
 
         for (int dx = -radius; dx <= radius; dx++) {
@@ -236,7 +248,7 @@ public class SafeZoneWarningListener implements Listener {
                         int nx = x + dir[0];
                         int nz = z + dir[1];
                         if (canBeDamagedCached(player, world, nx, baseY, nz)) {
-                            edges.add(new BlockKey(x, z));
+                            edges.add(new BlockKey(x, baseY, z));
                             break;
                         }
                     }
@@ -284,15 +296,22 @@ public class SafeZoneWarningListener implements Listener {
         Iterator<Map.Entry<Long, Long2DamageCache.Entry>> it = cache.map.entrySet().iterator();
         while (it.hasNext() && checked < 64) {
             Map.Entry<Long, Long2DamageCache.Entry> en = it.next();
-            if ((now - en.getValue().time) >= CACHE_EXPIRY_MS) {
-                it.remove();
-            }
+            if ((now - en.getValue().time) >= CACHE_EXPIRY_MS) it.remove();
             checked++;
         }
     }
 
     private static long packBlock(int x, int y, int z) {
         return ((long) (x & 0x3FFFFFF) << 38) | ((long) (z & 0x3FFFFFF) << 12) | (long) (y & 0xFFFL);
+    }
+
+    private static class Long2DamageCache {
+        static class Entry {
+            final boolean value;
+            final long time;
+            Entry(boolean v, long t) { value = v; time = t; }
+        }
+        final Map<Long, Entry> map = new HashMap<>(1024);
     }
 
     @EventHandler
@@ -312,9 +331,7 @@ public class SafeZoneWarningListener implements Listener {
     public void onCombatEnd(CombatEnd event) {
         Player player = event.getPlayer();
         PlayerSafeZoneData data = playerData.remove(player.getUniqueId());
-        if (data != null) {
-            fadeOutFakeBlocks(player, data);
-        }
+        if (data != null) fadeOutFakeBlocks(player, data);
     }
 
     private void debug(String msg) {
@@ -333,14 +350,5 @@ public class SafeZoneWarningListener implements Listener {
         }
     }
 
-    private record BlockKey(int x, int z) {}
-
-    private static class Long2DamageCache {
-        static class Entry {
-            final boolean value;
-            final long time;
-            Entry(boolean v, long t) { value = v; time = t; }
-        }
-        final Map<Long, Entry> map = new HashMap<>(1024);
-    }
+    private record BlockKey(int x, int y, int z) {}
 }

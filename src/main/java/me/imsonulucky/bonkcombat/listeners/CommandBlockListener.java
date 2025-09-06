@@ -2,8 +2,8 @@ package me.imsonulucky.bonkcombat.listeners;
 
 import me.imsonulucky.bonkcombat.BonkCombat;
 import me.imsonulucky.bonkcombat.util.ColorUtil;
-import me.imsonulucky.bonkcombat.utils.CombatManager;
-import me.imsonulucky.bonkcombat.utils.ConfigManager;
+import me.imsonulucky.bonkcombat.util.CombatManager;
+import me.imsonulucky.bonkcombat.util.ConfigManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;

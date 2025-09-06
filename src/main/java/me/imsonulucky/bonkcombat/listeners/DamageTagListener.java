@@ -2,8 +2,8 @@ package me.imsonulucky.bonkcombat.listeners;
 
 import me.imsonulucky.bonkcombat.BonkCombat;
 import me.imsonulucky.bonkcombat.integrations.WorldGuardHook;
-import me.imsonulucky.bonkcombat.utils.CombatManager;
-import me.imsonulucky.bonkcombat.utils.ConfigManager;
+import me.imsonulucky.bonkcombat.util.CombatManager;
+import me.imsonulucky.bonkcombat.util.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;

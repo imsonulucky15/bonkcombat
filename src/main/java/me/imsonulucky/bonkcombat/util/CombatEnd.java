@@ -9,7 +9,7 @@ public class CombatEnd extends Event {
     private final Player player;
 
     public CombatEnd(Player player) {
-        super(true);
+        super(false); // now synchronous, safe to fire on main thread
         this.player = player;
     }
 

@@ -1,7 +1,7 @@
 package me.imsonulucky.bonkcombat.commands;
 
 import me.imsonulucky.bonkcombat.BonkCombat;
-import me.imsonulucky.bonkcombat.utils.CombatManager;
+import me.imsonulucky.bonkcombat.util.CombatManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
